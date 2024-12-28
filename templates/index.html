@@ -1,0 +1,75 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X Trending Topics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>X (Twitter) Trending Topics</h1>
+        <div class="scraper-section">
+            <a href="#" id="scrapeButton" class="button">Click here to run the script</a>
+        </div>
+        
+        <div id="loadingIndicator" class="loading hidden">
+            <span class="spinner"></span>
+            <p>Fetching trending topics...</p>
+        </div>
+        
+        <div id="result" class="result-section"></div>
+        
+        <div id="errorMessage" class="error hidden"></div>
+    </div>
+
+    <script>
+        document.getElementById('scrapeButton').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const resultSection = document.getElementById('result');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Show loading, hide other sections
+            loadingIndicator.classList.remove('hidden');
+            resultSection.innerHTML = '';
+            errorMessage.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/scrape');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const formattedDate = new Date(data.datetime).toLocaleString();
+                    
+                    resultSection.innerHTML = `
+                        <h2>These are the most happening topics as on ${formattedDate}</h2>
+                        <ul class="trends-list">
+                            <li>${data.nameoftrend1}</li>
+                            <li>${data.nameoftrend2}</li>
+                            <li>${data.nameoftrend3}</li>
+                            <li>${data.nameoftrend4}</li>
+                            <li>${data.nameoftrend5}</li>
+                        </ul>
+                        <p class="ip-info">The IP address used for this query was ${data.ip_address}</p>
+                        <div class="json-data">
+                            <h3>MongoDB Record:</h3>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                        <a href="#" class="button" onclick="location.reload()">Click here to run the query again</a>
+                    `;
+                } else {
+                    throw new Error(data.error || 'Failed to fetch trending topics');
+                }
+            } catch (error) {
+                errorMessage.textContent = `Error: ${error.message}`;
+                errorMessage.classList.remove('hidden');
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
