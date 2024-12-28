@@ -53,7 +53,7 @@ db.trends.createIndex({ "ip_address": 1 });
 // Create user (optional)
 db.createUser({
   user: "trendingapp",
-  pwd: "your_password_here",
+  pwd: "password",
   roles: [
     { role: "readWrite", db: "trending_topics" }
   ]
